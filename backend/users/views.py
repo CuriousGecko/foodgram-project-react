@@ -7,9 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.pagination import CustomPagination
-from users.serializers import UserSubscribesSerializer
-
-from .models import Subscription
+from users.models import Subscription
+from users.serializers import (SubscriptionCreateSerializer,
+                               UserSubscriptionsSerializer)
 
 User = get_user_model()
 
@@ -28,9 +28,9 @@ class CustomUserViewSet(UserViewSet):
             User,
             id=self.kwargs.get('id'),
         )
-        serializer = UserSubscribesSerializer(
+        serializer = SubscriptionCreateSerializer(
             author,
-            data={},
+            data={'user': user.id, 'author': author.id},
             context={'request': request},
         )
         serializer.is_valid(
@@ -55,7 +55,7 @@ class CustomUserViewSet(UserViewSet):
             user=request.user,
             author=author,
         )
-        if not subscription:
+        if not subscription.exists():
             return Response(
                 'Нельзя удалить несуществующую подписку на пользователя.',
                 status=status.HTTP_400_BAD_REQUEST,
@@ -75,7 +75,7 @@ class CustomUserViewSet(UserViewSet):
             following__user=request.user,
         )
         pages = self.paginate_queryset(subscriptions)
-        serializer = UserSubscribesSerializer(
+        serializer = UserSubscriptionsSerializer(
             pages,
             many=True,
             context={'request': request},

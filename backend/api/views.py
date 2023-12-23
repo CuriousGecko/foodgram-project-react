@@ -1,4 +1,3 @@
-from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -12,8 +11,7 @@ from api.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from api.serializers import (FavoriteSerializer, IngredientSerializer,
                              RecipeSerializer, ShoppingCartSerializer,
                              TagSerializer)
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredients,
-                            ShoppingCart, Tag)
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -48,16 +46,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,),
         detail=True,
     )
-    def favorite(self, request, **kwargs):
-        data = {
-            'user': self.request.user.id,
-            'recipe': self.kwargs.get('pk')
-        }
+    def favorite(self, request, pk):
         serializer = FavoriteSerializer(
-            data=data,
-            context={'request': request},
+            data={
+                'user': self.request.user.id,
+                'recipe': pk,
+            }
         )
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(
+            raise_exception=True,
+        )
         serializer.save()
         return Response(
             serializer.data,
@@ -66,28 +64,55 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
-        user = self.request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        favorite = get_object_or_404(Favorite, user=user, recipe=recipe)
-        favorite.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        recipe_in_favorite = Favorite.objects.filter(
+            user=self.request.user,
+            recipe=get_object_or_404(Recipe, pk=pk),
+        )
+        if not recipe_in_favorite.exists():
+            return Response(
+                'Нельзя удалить рецепт из избранного, '
+                'который не был туда добавлен.',
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        recipe_in_favorite.delete()
+        return Response(
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
-    @action(detail=True, methods=('post',),
-            permission_classes=[IsAuthenticated])
+    @action(
+        methods=('post',),
+        permission_classes=(IsAuthenticated,),
+        detail=True,
+    )
     def shopping_cart(self, request, pk):
-        user = self.request.user.id
-        data = {'user': user, 'recipe': pk}
-        serializer = ShoppingCartSerializer(data=data,
-                                            context={'request': request})
-        serializer.is_valid(raise_exception=True)
+        serializer = ShoppingCartSerializer(
+            data={
+                'user': self.request.user.id,
+                'recipe': pk,
+            },
+        )
+        serializer.is_valid(
+            raise_exception=True,
+        )
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+        )
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
-        user = self.request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        shopping_cart = get_object_or_404(ShoppingCart,
-                                          user=user, recipe=recipe)
-        shopping_cart.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        recipe_in_shopping_cart = ShoppingCart.objects.filter(
+            user=self.request.user,
+            recipe=get_object_or_404(Recipe, pk=pk),
+        )
+        if not recipe_in_shopping_cart.exists():
+            return Response(
+                'Нельзя удалить рецепт из корзины, '
+                'который не был туда добавлен.',
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        recipe_in_shopping_cart.delete()
+        return Response(
+            status=status.HTTP_204_NO_CONTENT,
+        )

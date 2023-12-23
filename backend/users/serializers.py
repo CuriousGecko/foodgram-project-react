@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer
 from drf_base64.fields import Base64ImageField
-from rest_framework import serializers, status
-from rest_framework.exceptions import ValidationError
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import Recipe
 from users.models import Subscription
@@ -14,8 +14,8 @@ class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
         model = User
         fields = (
-            (User.USERNAME_FIELD, 'password', 'id',)
-            + tuple(User.REQUIRED_FIELDS)
+                (User.USERNAME_FIELD, 'password', 'id',)
+                + tuple(User.REQUIRED_FIELDS)
         )
 
 
@@ -25,9 +25,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            (User.USERNAME_FIELD, 'id',)
-            + tuple(User.REQUIRED_FIELDS)
-            + ('is_subscribed',)
+                (User.USERNAME_FIELD, 'id',)
+                + tuple(User.REQUIRED_FIELDS)
+                + ('is_subscribed',)
         )
 
     def get_is_subscribed(self, obj):
@@ -40,19 +40,19 @@ class CustomUserSerializer(serializers.ModelSerializer):
         ).exists()
 
 
-class UserSubscribesSerializer(CustomUserSerializer):
+class UserSubscriptionsSerializer(CustomUserSerializer):
     recipes_count = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
-            CustomUserSerializer.Meta.fields
-            + ('recipes', 'recipes_count',)
+                CustomUserSerializer.Meta.fields
+                + ('recipes', 'recipes_count',)
         )
         read_only_fields = (
-            tuple(User.REQUIRED_FIELDS)
-            + (User.USERNAME_FIELD,)
+                tuple(User.REQUIRED_FIELDS)
+                + (User.USERNAME_FIELD,)
         )
 
     def get_recipes_count(self, author):
@@ -70,23 +70,37 @@ class UserSubscribesSerializer(CustomUserSerializer):
         )
         return serializer.data
 
-    def validate(self, data):
-        user = self.context.get('request').user
-        author = self.instance
-        if Subscription.objects.filter(
-                user=user,
-                author=author,
-        ).exists():
-            raise ValidationError(
-                detail='Подписка на данного пользователя уже существует.',
-                code=status.HTTP_400_BAD_REQUEST,
+
+class SubscriptionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = (
+            'user',
+            'author',
+        )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Subscription.objects.all(),
+                fields=('user', 'author'),
+                message='Подписка на данного пользователя уже существует.',
             )
+        ]
+
+    def validate(self, data):
+        user = data.get('user')
+        author = data.get('author')
         if user == author:
-            raise ValidationError(
-                detail='Подписаться на самого себя нельзя.',
-                code=status.HTTP_400_BAD_REQUEST,
+            raise serializers.ValidationError(
+                'Подписаться на самого себя нельзя.'
             )
         return data
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return UserSubscriptionsSerializer(
+            instance,
+            context={'request': request},
+        ).data
 
 
 class RecipeShortVersionSerializer(serializers.ModelSerializer):

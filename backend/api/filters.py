@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models.functions import Lower
 from django_filters import rest_framework as filters
 
 from recipes.models import Ingredient, Recipe
@@ -46,10 +47,20 @@ class RecipeFilter(filters.FilterSet):
 
 
 class IngredientFilter(filters.FilterSet):
-    name = filters.CharFilter(lookup_expr='startswith')
+    name = filters.CharFilter(
+        lookup_expr='startswith',
+        method='filter_name',
+    )
 
     class Meta:
         model = Ingredient
         fields = (
             'name',
+        )
+
+    def filter_name(self, queryset, name, value):
+        return queryset.annotate(
+            lower_name=Lower(name)
+        ).filter(
+            lower_name__startswith=value.lower()
         )
