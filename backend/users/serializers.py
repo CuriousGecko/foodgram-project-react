@@ -59,7 +59,7 @@ class UserSubscriptionsSerializer(CustomUserSerializer):
         return author.recipes.count()
 
     def get_recipes(self, author):
-        limit = self.context.get('request').GET.get('recipes_limit')
+        limit = self.context.get('request').query_params.get('recipes_limit')
         recipes = author.recipes.all()
         if limit:
             recipes = recipes[:int(limit)]
