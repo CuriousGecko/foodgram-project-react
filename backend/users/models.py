@@ -1,7 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from foodgram_backend.constants import MAX_LENGHT_EMAIL
+from foodgram_backend.constants import (MAX_LENGHT_EMAIL, MAX_LENGHT_LAST_NAME,
+                                        MAX_LENGTH_FIRST_NAME)
 
 
 class CustomUser(AbstractUser):
@@ -17,11 +18,11 @@ class CustomUser(AbstractUser):
     )
     first_name = models.CharField(
         'Имя',
-        max_length=150,
+        max_length=MAX_LENGTH_FIRST_NAME,
     )
     last_name = models.CharField(
         'Фамилия',
-        max_length=150,
+        max_length=MAX_LENGHT_LAST_NAME,
     )
 
     USERNAME_FIELD = 'email'
@@ -61,8 +62,8 @@ class Subscription(models.Model):
         verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'author'],
-                name='unique_follow'
+                fields=('user', 'author'),
+                name='unique_follow',
             )
         ]
 

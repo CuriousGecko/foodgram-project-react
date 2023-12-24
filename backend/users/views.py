@@ -9,12 +9,14 @@ from rest_framework.response import Response
 from api.pagination import CustomPagination
 from users.models import Subscription
 from users.serializers import (SubscriptionCreateSerializer,
-                               UserSubscriptionsSerializer)
+                               SubscriptionListSerializer)
 
 User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
+    """Обрабатывает запросы, связанные с пользователями и подписками."""
+
     pagination_class = CustomPagination
 
     @action(
@@ -75,7 +77,7 @@ class CustomUserViewSet(UserViewSet):
             following__user=request.user,
         )
         pages = self.paginate_queryset(subscriptions)
-        serializer = UserSubscriptionsSerializer(
+        serializer = SubscriptionListSerializer(
             pages,
             many=True,
             context={'request': request},

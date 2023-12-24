@@ -3,6 +3,13 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 
+from foodgram_backend.constants import (MAX_LENGHT_HEX,
+                                        MAX_LENGHT_INGREDIENT_NAME,
+                                        MAX_LENGHT_MEASUREMENT_UNIT,
+                                        MAX_LENGHT_RECIPE_NAME,
+                                        MAX_LENGHT_SLUG, MAX_LENGHT_TAG_NAME,
+                                        MIN_AMOUNT, MIN_COOCKING_TIME)
+
 User = get_user_model()
 
 
@@ -12,12 +19,12 @@ class Tag(models.Model):
     name = models.CharField(
         'Название',
         unique=True,
-        max_length=200,
+        max_length=MAX_LENGHT_TAG_NAME,
     )
     color = models.CharField(
         'Цветовой HEX-код',
         unique=True,
-        max_length=7,
+        max_length=MAX_LENGHT_HEX,
         validators=[
             RegexValidator(
                 regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
@@ -26,9 +33,9 @@ class Tag(models.Model):
         ]
     )
     slug = models.SlugField(
-        'Уникальный слаг',
+        'Cлаг',
         unique=True,
-        max_length=200,
+        max_length=MAX_LENGHT_SLUG,
     )
 
     class Meta:
@@ -44,17 +51,17 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         'Название',
-        max_length=200,
+        max_length=MAX_LENGHT_INGREDIENT_NAME,
     )
     measurement_unit = models.CharField(
         'Единица измерения',
-        max_length=200,
+        max_length=MAX_LENGHT_MEASUREMENT_UNIT,
     )
 
     class Meta:
+        ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = ['name']
 
     def __str__(self):
         return f'{self.name} измеряется в {self.measurement_unit}.'
@@ -65,13 +72,12 @@ class Recipe(models.Model):
 
     name = models.CharField(
         'Название',
-        max_length=200,
+        max_length=MAX_LENGHT_RECIPE_NAME,
     )
     author = models.ForeignKey(
         User,
+        on_delete=models.CASCADE,
         related_name='recipes',
-        on_delete=models.SET_NULL,
-        null=True,
         verbose_name='Автор',
     )
     text = models.TextField(
@@ -81,8 +87,8 @@ class Recipe(models.Model):
         'Время приготовления',
         validators=[
             MinValueValidator(
-                1,
-                message='Минимальное значение 1.',
+                MIN_COOCKING_TIME,
+                message=f'Минимальное значение {MIN_COOCKING_TIME}.',
             )
         ]
     )
@@ -103,7 +109,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ('-id',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
@@ -129,8 +135,8 @@ class RecipeIngredients(models.Model):
         'Количество',
         validators=[
             MinValueValidator(
-                1,
-                message='Минимальное количество 1.'
+                MIN_AMOUNT,
+                message=f'Минимальное количество {MIN_AMOUNT}.',
             ),
         ]
     )
@@ -168,8 +174,8 @@ class Favorite(models.Model):
         verbose_name_plural = 'Избранное'
         constraints = [
             models.UniqueConstraint(
-                fields=['recipe', 'user'],
-                name='unique_recipe_user_in_favorite'
+                fields=('recipe', 'user'),
+                name='unique_recipe_user_in_favorite',
             )
         ]
 
@@ -195,7 +201,7 @@ class ShoppingCart(models.Model):
         verbose_name_plural = 'Корзины покупок'
         constraints = [
             UniqueConstraint(
-                fields=['user', 'recipe'],
+                fields=('user', 'recipe'),
                 name='unique_shopping_cart',
             )
         ]

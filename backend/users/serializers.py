@@ -40,7 +40,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         ).exists()
 
 
-class UserSubscriptionsSerializer(CustomUserSerializer):
+class SubscriptionListSerializer(CustomUserSerializer):
     recipes_count = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
 
@@ -97,7 +97,7 @@ class SubscriptionCreateSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         request = self.context.get('request')
-        return UserSubscriptionsSerializer(
+        return SubscriptionListSerializer(
             instance,
             context={'request': request},
         ).data

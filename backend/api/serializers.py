@@ -72,7 +72,7 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
         )
 
 
-class RecipeListSerializer(serializers.ModelSerializer):
+class RecipeReadSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(
         read_only=True,
     )
@@ -137,10 +137,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(
         read_only=True,
     )
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Tag.objects.all(),
-    )
     ingredients = IngredientCreateSerializer(
         many=True,
     )
@@ -157,6 +153,9 @@ class RecipeSerializer(serializers.ModelSerializer):
             'image',
             'text',
             'cooking_time',
+        )
+        read_only_fields = (
+            'id',
         )
 
     def validate_ingredients(self, ingredients):
@@ -203,7 +202,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'В названии рецепта должны присутствовать буквы.'
             )
-        return True
+        return name
 
     def validate(self, data):
         if 'tags' not in data:
@@ -260,7 +259,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         request = self.context.get('request')
-        return RecipeListSerializer(
+        return RecipeReadSerializer(
             instance,
             context={'request': request},
         ).data
