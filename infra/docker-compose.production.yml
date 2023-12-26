@@ -33,7 +33,7 @@ services:
     container_name: foodgram-gateway
     image: curiousgeckon/foodgram_gateway
     ports:
-      - 8088:80
+      - "8088:80"
     volumes:
       - ./frontend/build:/usr/share/nginx/html/
       - ./docs/:/usr/share/nginx/html/api/docs/
