@@ -1,13 +1,22 @@
+# flake8: noqa
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-kh1%d(#o46y7&=)1@n^md22h=z_lny$@!m!r#949$szsnf6=f3'
+SECRET_KEY = os.getenv(
+    'SECRET_KEY', '6ixkl2l6l#*ht33mjn&lo_v^ekyfdlyq(uqwepi@35sjq!l)8^'
+    )
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', False)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = os.getenv(
+    'ALLOWED_HOSTS', '127.0.0.1, localhost'
+    ).split(', ')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -39,12 +48,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'foodgram_backend.urls'
 
-TEMPLATES_DIR = BASE_DIR / 'templates'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_DIR],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -61,8 +68,19 @@ WSGI_APPLICATION = 'foodgram_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'USER': os.getenv('DB_USER', 'django'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'NAME': os.getenv('DB_NAME', 'django_db'),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', 5432),
+
+        'ATOMIC_REQUESTS': os.getenv('DB_ATOMIC_REQUESTS', False),
+        'AUTOCOMMIT': os.getenv('DB_AUTOCOMMIT', True),
+        'CONN_MAX_AGE': os.getenv('DB_CONN_MAX_AGE', 0),
+        'CONN_HEALTH_CHECKS': os.getenv('DB_CONN_HEALTH_CHECKS', False),
+        'OPTIONS': os.getenv('DB_OPTIONS', {}),
+        'TIME_ZONE': os.getenv('DB_TIME_ZONE', None),
     }
 }
 
@@ -105,9 +123,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    #
+
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 3,
+
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ]

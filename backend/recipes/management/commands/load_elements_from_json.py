@@ -2,6 +2,7 @@ import json
 
 from django.apps import apps
 from django.core.management.base import BaseCommand
+from django.db import IntegrityError
 
 
 class Command(BaseCommand):
@@ -26,20 +27,23 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with open(options['file_path'], 'r') as file:
-            ingredients_data = json.load(file)
+            elements = json.load(file)
             model = apps.get_model(
                 options['app_name'],
                 options['model_name'],
             )
-        ingredients_to_create = []
-        for ingredient_data in ingredients_data:
-            ingredient = model(
-                name=ingredient_data['name'],
-                measurement_unit=ingredient_data['measurement_unit'],
-            )
-            ingredients_to_create.append(ingredient)
-        model.objects.bulk_create(
-            ingredients_to_create,
-            batch_size=100,
+        added = int()
+        fails = int()
+        for element in elements:
+            try:
+                model.objects.create(
+                    **element,
+                )
+                added += 1
+            except IntegrityError:
+                fails += 1
+        print(
+            f'Операция завершена.\n'
+            f'Добавлено элементов: {added}\n'
+            f'Пропущено элементов: {fails}'
         )
-        print('Операция успешно завершена!')

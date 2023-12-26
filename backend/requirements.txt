@@ -14,10 +14,14 @@ drf-base64==2.0
 gunicorn==21.2.0
 idna==3.6
 isort==5.13.2
+mccabe==0.7.0
 oauthlib==3.2.2
 packaging==23.2
 Pillow==10.1.0
+psycopg2-binary==2.9.3
+pycodestyle==2.11.1
 pycparser==2.21
+pyflakes==3.1.0
 PyJWT==2.8.0
 python-dotenv==1.0.0
 python3-openid==3.2.0

@@ -1,0 +1,7 @@
+venv
+.git
+db.sqlite3
+db.sqlite3.bak
+.env
+django_db
+django_db.bak
