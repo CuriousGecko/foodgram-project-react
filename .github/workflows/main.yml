@@ -100,7 +100,7 @@ jobs:
             python manage.py migrate
 
             sudo docker compose -f docker-compose.production.yml exec backend
-            python manage.py collectstatic
+            python manage.py collectstatic --no-input
 
             sudo docker exec -it foodgram-back python manage.py
             load_elements_from_json --file_path ./data_for_load/ingredients.json
