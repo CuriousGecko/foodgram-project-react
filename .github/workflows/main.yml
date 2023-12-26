@@ -87,7 +87,7 @@ jobs:
           username: '${{ secrets.USER }}'
           key: '${{ secrets.SSH_KEY }}'
           passphrase: '${{ secrets.SSH_PASSPHRASE }}'
-          script: >
+          script: |
             cd foodgram/infra
 
             sudo docker compose -f docker-compose.production.yml pull
@@ -96,22 +96,14 @@ jobs:
 
             sudo docker compose -f docker-compose.production.yml up -d
 
-            sudo docker compose -f docker-compose.production.yml exec backend
-            python manage.py migrate
+            sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
 
-            sudo docker compose -f docker-compose.production.yml exec backend
-            python manage.py collectstatic --no-input
+            sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic --no-input
 
-            sudo docker exec -it foodgram-back python manage.py
-            load_elements_from_json --file_path ./data_for_load/ingredients.json
-            --model_name Ingredient --app_name recipes
+            sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_elements_from_json --file_path ./data_for_load/ingredients.json --model_name Ingredient --app_name recipes
 
-            sudo docker exec -it foodgram-back python manage.py
-            load_elements_from_json --file_path ./data_for_load/tags.json
-            --model_name Tag --app_name recipes
+            sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_elements_from_json --file_path ./data_for_load/tags.json --model_name Tag --app_name recipes
 
-            # sudo docker compose -f docker-compose.production.yml exec backend
-            cp -r /app/#collected_static/. /backend_static/static/
   send_message:
     runs-on: ubuntu-latest
     needs: deploy
