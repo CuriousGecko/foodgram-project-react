@@ -127,15 +127,15 @@ jobs:
             python manage.py collectstatic --no-input
 
 
-            sudo docker compose -f docker-compose.production.yml exec backend
-            python manage.py load_elements_from_json --file_path
-            ./data_for_load/ingredients.json --model_name Ingredient --app_name
-            recipes
-
-
-            sudo docker compose -f docker-compose.production.yml exec backend
-            python manage.py load_elements_from_json --file_path
-            ./data_for_load/tags.json --model_name Tag --app_name recipes
+            # sudo docker compose -f docker-compose.production.yml exec backend
+            # python manage.py load_elements_from_json --file_path
+            # ./data_for_load/ingredients.json --model_name Ingredient --app_name
+            # recipes
+            #
+            #
+            # sudo docker compose -f docker-compose.production.yml exec backend
+            # python manage.py load_elements_from_json --file_path
+            # ./data_for_load/tags.json --model_name Tag --app_name recipes
 
   send_message:
     runs-on: ubuntu-latest
