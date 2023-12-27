@@ -31,7 +31,7 @@ services:
 
   nginx:
     container_name: foodgram-gateway
-    image: image: nginx:1.19.3
+    image: nginx:1.19.3
     ports:
       - "8088:80"
     volumes:
