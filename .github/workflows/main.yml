@@ -19,7 +19,7 @@ jobs:
           pip install flake8
       - name: Test with flake8
         run:
-          python -m flake8
+          python -m flake8 --config=backend/.flake8
 
   build_backend_and_push_to_docker_hub:
     name: Push Docker image to DockerHub
