@@ -89,7 +89,7 @@ Pass: verystr000ngpass!
     ```
 
     ```bash
-    sudo docker build -t username/foodgram_front .
+    sudo docker build -t username/foodgram_frontend .
     ```
 
     ```bash
@@ -97,17 +97,17 @@ Pass: verystr000ngpass!
     ```
 
     ```bash
-    sudo docker build -t username/foodgram_back .
+    sudo docker build -t username/foodgram_backend .
     ```
 
 4. Загрузите образы на DockerHub:
 
     ```bash
-    sudo docker push username/foodgram_front
+    sudo docker push username/foodgram_frontend
     ```
 
     ```bash
-    sudo docker push username/foodgram_back
+    sudo docker push username/foodgram_backend
     ```
 
 5. Подключитесь к удаленному серверу
@@ -121,10 +121,10 @@ Pass: verystr000ngpass!
 7. Создайте директорию foodgram/infra в домашней директории сервера:
 
     ```bash
-    mkdir kittygram/infra
+    mkdir foodgram/infra
     ```
 
-8. В директории kittygram/infra создайте файл docker-compose.production.yml со следующим содержимым (замените docker_username на ваш логин на DockerHub):
+8. В директории foodgram/infra создайте файл docker-compose.production.yml со следующим содержимым (замените docker_username на ваш логин на DockerHub):
 
 ```yaml
 version: '3.3'
