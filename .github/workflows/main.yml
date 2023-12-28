@@ -87,6 +87,15 @@ jobs:
           passphrase: '${{ secrets.SSH_PASSPHRASE }}'
           source: docs
           target: foodgram
+      - name: Copy deploy_data via ssh
+        uses: appleboy/scp-action@master
+        with:
+          host: '${{ secrets.HOST }}'
+          username: '${{ secrets.USER }}'
+          key: '${{ secrets.SSH_KEY }}'
+          passphrase: '${{ secrets.SSH_PASSPHRASE }}'
+          source: infra/deploy_data
+          target: foodgram
       - name: Executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
@@ -99,24 +108,6 @@ jobs:
             sudo docker compose -f docker-compose.production.yml pull
             sudo docker compose -f docker-compose.production.yml down
             sudo docker compose -f docker-compose.production.yml up -d
-
-            # sudo docker compose -f docker-compose.production.yml exec backend
-            # python manage.py migrate
-            #
-            #
-            # sudo docker compose -f docker-compose.production.yml exec backend
-            # python manage.py collectstatic --no-input
-
-
-            # sudo docker compose -f docker-compose.production.yml exec backend
-            # python manage.py load_elements_from_json --file_path
-            # ./data_for_load/ingredients.json --model_name Ingredient --app_name
-            # recipes
-            #
-            #
-            # sudo docker compose -f docker-compose.production.yml exec backend
-            # python manage.py load_elements_from_json --file_path
-            # ./data_for_load/tags.json --model_name Tag --app_name recipes
 
   send_message:
     runs-on: ubuntu-latest

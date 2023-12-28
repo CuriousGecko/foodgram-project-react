@@ -1,27 +1,17 @@
 [
   {
-    "name": "lime",
-    "color": "#00FF00",
-    "slug": "lime"
-  },
-  {
-    "name": "tomato",
-    "color": "#FF6347",
-    "slug": "tomato"
-  },
-  {
-    "name": "lemon",
+    "name": "Завтрак",
     "color": "#FFF700",
-    "slug": "lemon"
+    "slug": "breakfast"
   },
   {
-    "name": "orange",
+    "name": "Обед",
+    "color": "#00FF00",
+    "slug": "lunch"
+  },
+  {
+    "name": "Ужин",
     "color": "#FFA500",
-    "slug": "orange"
-  },
-  {
-    "name": "olive",
-    "color": "#808000",
-    "slug": "olive"
+    "slug": "dinner"
   }
 ]
