@@ -14,8 +14,8 @@ class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
         model = User
         fields = (
-                (User.USERNAME_FIELD, 'password', 'id',)
-                + tuple(User.REQUIRED_FIELDS)
+            (User.USERNAME_FIELD, 'password', 'id',)
+            + tuple(User.REQUIRED_FIELDS)
         )
 
 
@@ -25,9 +25,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-                (User.USERNAME_FIELD, 'id',)
-                + tuple(User.REQUIRED_FIELDS)
-                + ('is_subscribed',)
+            (User.USERNAME_FIELD, 'id',)
+            + tuple(User.REQUIRED_FIELDS)
+            + ('is_subscribed',)
         )
 
     def get_is_subscribed(self, obj):
@@ -47,12 +47,12 @@ class SubscriptionListSerializer(CustomUserSerializer):
     class Meta:
         model = User
         fields = (
-                CustomUserSerializer.Meta.fields
-                + ('recipes', 'recipes_count',)
+            CustomUserSerializer.Meta.fields
+            + ('recipes', 'recipes_count',)
         )
         read_only_fields = (
-                tuple(User.REQUIRED_FIELDS)
-                + (User.USERNAME_FIELD,)
+            tuple(User.REQUIRED_FIELDS)
+            + (User.USERNAME_FIELD,)
         )
 
     def get_recipes_count(self, author):
