@@ -113,7 +113,7 @@ jobs:
             #Django
             SECRET_KEY=${{ secrets.SECRET_KEY }}
             ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
-            DEBUG=${{ secrets.DEBUG }}
+            DEBUG=${{ secrets.DEBUG }}" | tee .env
 
             echo "version: '3.3'
 
