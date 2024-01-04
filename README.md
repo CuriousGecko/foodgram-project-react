@@ -85,11 +85,11 @@ Pass: verystr000ngpass!
     DOCKER_USERNAME                # имя пользователя в DockerHub
     DOCKER_PASSWORD                # пароль пользователя в DockerHub
 
-    HOST                           # ip_address сервера
+    HOST                           # IP-адрес сервера
     USER                           # имя пользователя
     SSH_KEY                        # приватный ssh-ключ (cat ~/.ssh/id_rsa)
     SSH_PASSPHRASE                 # кодовая фраза (пароль) для ssh-ключа
-   
+    
     DB_ENGINE                      # какой движок будет использовать Django для БД
     DB_USER                        # пользователь БД
     DB_PASSWORD                    # пароль пользователя БД
@@ -99,12 +99,15 @@ Pass: verystr000ngpass!
     POSTGRES_USER                  # == DB_USER
     POSTGRES_PASSWORD              # == DB_PASSWORD
     POSTGRES_DB                    # == DB_NAME
+   
+    SERVER_NAME                    # домен вашего проекта и\или IP-адрес сервера
+    NGINX_EXTERNAL_PORT            # какой внешний порт будет слушать контейнер Nginx
 
     TELEGRAM_TO                    # id телеграм-аккаунта (можно узнать у @userinfobot, команда /start)
     TELEGRAM_TOKEN                 # токен бота (получить токен можно у @BotFather, /token, имя бота)
     ```
 
-3. Опционально: измените данные для создания суперпользователя в скрипте deploy_data в директории foodgram/infra удаленного сервера и запустите его. Он запустит миграции, наполнит БД стартовыми данными, создаст суперпользователя:
+3. Опционально: измените данные для создания суперпользователя в скрипте deploy_data.sh в директории foodgram/infra удаленного сервера и запустите его. Будут применены миграции, БД наполнится стартовыми данными, создастся суперпользователь.
 
 
 ### Запросы к API
