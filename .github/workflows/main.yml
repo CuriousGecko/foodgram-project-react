@@ -105,8 +105,8 @@ jobs:
           passphrase: '${{ secrets.SSH_PASSPHRASE }}'
           script: |
             cd foodgram/infra
-            echo "
-            version: '3.3'
+            echo
+            "version: '3.3'
 
             volumes:
               pg_data:
