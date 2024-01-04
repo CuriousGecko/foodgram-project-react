@@ -24,7 +24,7 @@ Pass: verystr000ngpass!
     cd foodgram-project-react/for_devs/
     ```
 
-3. Наполните файл env.for_dev своими данными.
+3. Наполните файл env.dev своими данными.
 
 4. Перейдите в директорию:
 
@@ -72,133 +72,14 @@ Pass: verystr000ngpass!
 
 
 #### Деплой проекта на удаленном сервере:
-1. Склонируйте репозиторий на свой компьютер:
 
-    ```bash
-    git clone git@github.com:CuriousGecko/foodgram-project-react.git
-    ```
-
-    ```bash
-    cd foodgram-project-react
-    ```
-
-2. Создайте образы (замените username на ваш логин на DockerHub):
-
-    ```bash
-    cd frontend
-    ```
-
-    ```bash
-    sudo docker build -t username/foodgram_frontend .
-    ```
-
-    ```bash
-    cd ../backend
-    ```
-
-    ```bash
-    sudo docker build -t username/foodgram_backend .
-    ```
-
-4. Загрузите образы на DockerHub:
-
-    ```bash
-    sudo docker push username/foodgram_frontend
-    ```
-
-    ```bash
-    sudo docker push username/foodgram_backend
-    ```
-
-5. Подключитесь к удаленному серверу
-
-    ```bash
-    ssh -i путь_до_файла_с_SSH_ключом/название_файла_с_SSH_ключом имя_пользователя@ip_адрес_сервера
-    ```
-
-6. Установите Nginx, Docker и Docker-compose. Запустите сервис Docker.
-
-7. Создайте директорию foodgram/infra в домашней директории сервера:
-
-    ```bash
-    mkdir foodgram/infra
-    ```
-
-8. В директории foodgram/infra создайте файл docker-compose.production.yml со следующим содержимым (замените docker_username на ваш логин на DockerHub):
-
-```yaml
-version: '3.3'
-
-volumes:
-  pg_data:
-  static:
-  media:
-
-services:
-  db:
-    container_name: foodgram-db
-    image: postgres:13
-    env_file: .env
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-
-  frontend:
-    container_name: foodgram-front
-    image: username/foodgram_frontend:latest
-    volumes:
-      - ./frontend/:/app/result_build/
-
-  backend:
-    container_name: foodgram-back
-    image: username/foodgram_backend:latest
-    env_file: .env
-    volumes:
-      - static:/app/collected_static/
-      - media:/app/media/
-    depends_on:
-      - db
-
-  nginx:
-    container_name: foodgram-gateway
-    image: nginx:1.22.1
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
-      - static:/var/html/static/
-      - media:/var/html/media/
-    depends_on:
-      - db
-      - backend
-```
-
-9. В директории foodgram/infra создайте файл .env (в качестве образца используйте env.for_dev из клонированного репозитория).
-
-10. Из директории infra клонированного репозитория скопируйте на сервер в foodgram/infra файл nginx.conf. Измените в нем server_name на ваш домен.
-
-11. Запустите docker compose в режиме демона:
-
-    ```bash
-    sudo docker compose -f docker-compose.production.yml up -d
-    ```
-
-12. Измените данные для создания суперпользователя в скрипте deploy_data в директории foodgram/infra удаленного сервера и запустите его. Он запустит миграции, наполнит БД стартовыми данными, создаст суперпользователя:
-
-    ```bash
-    bash deploy_data
-    ```
-
-### Настройка CI/CD
-
-1. Файл workflow уже написан. Он находится в директории
+1. Файл workflow уже написан. Рекомендуется внимательно изучить содержимое. Файл находится в директории:
 
     ```bash
     foodgram-project-react/.github/workflows/main.yml
     ```
 
-2. Для адаптации его на своем сервере добавьте секреты в GitHub Actions:
+2. В GitHub Actions необходимо добавить следующие секреты (для полей БД можно взять в качестве образца файл /foodgram-project-react/for_devs/env.dev):
 
     ```bash
     DOCKER_USERNAME                # имя пользователя в DockerHub
@@ -208,10 +89,23 @@ services:
     USER                           # имя пользователя
     SSH_KEY                        # приватный ssh-ключ (cat ~/.ssh/id_rsa)
     SSH_PASSPHRASE                 # кодовая фраза (пароль) для ssh-ключа
+   
+    DB_ENGINE                      # какой движок будет использовать Django для БД
+    DB_USER                        # пользователь БД
+    DB_PASSWORD                    # пароль пользователя БД
+    DB_NAME                        # название БД
+    DB_HOST                        # к какому контейнеру подключаемся
+    DB_PORT                        # порт БД
+    POSTGRES_USER                  # == DB_USER
+    POSTGRES_PASSWORD              # == DB_PASSWORD
+    POSTGRES_DB                    # == DB_NAME
 
     TELEGRAM_TO                    # id телеграм-аккаунта (можно узнать у @userinfobot, команда /start)
     TELEGRAM_TOKEN                 # токен бота (получить токен можно у @BotFather, /token, имя бота)
     ```
+
+3. Опционально: измените данные для создания суперпользователя в скрипте deploy_data в директории foodgram/infra удаленного сервера и запустите его. Он запустит миграции, наполнит БД стартовыми данными, создаст суперпользователя:
+
 
 ### Запросы к API
 
@@ -226,3 +120,8 @@ services:
     "last_name": "user_last_name"
 }
 ```
+
+
+### Технология
+
+API разработан: Леонид Цыбульский
