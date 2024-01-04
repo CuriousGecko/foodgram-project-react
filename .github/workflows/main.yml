@@ -150,8 +150,7 @@ jobs:
                     - media:/var/html/media/
                   depends_on:
                     - db
-                    - backend"
-            | tee docker-compose.production.yml
+                    - backend" | tee docker-compose.production.yml
             
             sudo docker compose -f docker-compose.production.yml pull
             sudo docker compose -f docker-compose.production.yml down
