@@ -16,12 +16,12 @@ class SubscriptionListSerializer(CustomUserSerializer):
     class Meta:
         model = User
         fields = (
-                CustomUserSerializer.Meta.fields
-                + ('recipes', 'recipes_count',)
+            CustomUserSerializer.Meta.fields
+            + ('recipes', 'recipes_count',)
         )
         read_only_fields = (
-                tuple(User.REQUIRED_FIELDS)
-                + (User.USERNAME_FIELD,)
+            tuple(User.REQUIRED_FIELDS)
+            + (User.USERNAME_FIELD,)
         )
 
     def get_recipes_count(self, author):
