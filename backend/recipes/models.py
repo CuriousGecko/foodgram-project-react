@@ -89,4 +89,4 @@ class RecipeIngredients(models.Model):
         verbose_name_plural = 'Ингредиенты в рецептах'
 
     def __str__(self):
-        return f'{self.ingredient} in {self.recipe}'
+        return f'{self.ingredient} в {self.recipe}.'

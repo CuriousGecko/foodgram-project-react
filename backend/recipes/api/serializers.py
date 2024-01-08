@@ -3,6 +3,7 @@ from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
 from favorite.models import Favorite
+from foodgram_backend.constants import MIN_AMOUNT
 from ingredients.api.serializers import (IngredientCreateSerializer,
                                          RecipeIngredientsSerializer)
 from ingredients.models import Ingredient
@@ -106,7 +107,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 )
             if int(element.get('amount')) <= 0:
                 raise serializers.ValidationError(
-                    'Количество ингредиента должно быть больше нуля.'
+                    f'Количество ингредиента должно быть >= {MIN_AMOUNT}.'
                 )
             ingredients_list.append(ingredient)
         return ingredients
@@ -191,3 +192,14 @@ class RecipeSerializer(serializers.ModelSerializer):
             instance,
             context={'request': request},
         ).data
+
+
+class RecipeShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )

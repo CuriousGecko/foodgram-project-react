@@ -7,9 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from foodgram_backend.api.pagination import CustomPagination
-from users.models import Subscription
-from users.api.serializers import (SubscriptionCreateSerializer,
-                                   SubscriptionListSerializer)
+from subscriptions.api.serializers import (SubscriptionCreateSerializer,
+                                           SubscriptionListSerializer)
+from subscriptions.models import Subscription
 
 User = get_user_model()
 

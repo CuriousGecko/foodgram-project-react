@@ -2,8 +2,6 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
-from users.models import Subscription
-
 User = get_user_model()
 
 
@@ -19,21 +17,5 @@ class CustomUserAdmin(UserAdmin):
     search_fields = (
         'username',
         'email',
-    )
-    empty_value_display = '-пусто-'
-
-
-@admin.register(Subscription)
-class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'author')
-    search_fields = (
-        'author__username',
-        'author__email',
-        'user__username',
-        'user__email',
-    )
-    list_filter = (
-        'author__username',
-        'user__username',
     )
     empty_value_display = '-пусто-'

@@ -32,10 +32,11 @@ INSTALLED_APPS = [
     'django_filters',
 
     'users.apps.UsersConfig',
-    'ingredients.apps.IngredientsConfig',
-    'favorite.apps.FavoriteConfig',
-    'recipes.apps.RecipesConfig',
+    'subscriptions.apps.SubscriptionsConfig',
     'tags.apps.TagsConfig',
+    'ingredients.apps.IngredientsConfig',
+    'recipes.apps.RecipesConfig',
+    'favorite.apps.FavoriteConfig',
     'shoppingcart.apps.ShoppingcartConfig',
 ]
 
