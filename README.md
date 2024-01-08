@@ -59,11 +59,11 @@ Pass: verystr000ngpass!
 9. Загрузите данные в базу (опционально):
 
     ```bash
-    sudo docker exec foodgram-back python manage.py load_elements_from_json --file_path ./data_for_load/ingredients.json --model_name Ingredient --app_name recipes
+    sudo docker exec foodgram-back python manage.py load_elements_from_json --file_path ./data_for_load/ingredients.json --model_name Ingredient --app_name ingredients
     ```
 
     ```bash
-    sudo docker exec foodgram-back python manage.py load_elements_from_json --file_path ./data_for_load/tags.json --model_name Tag --app_name recipes
+    sudo docker exec foodgram-back python manage.py load_elements_from_json --file_path ./data_for_load/tags.json --model_name Tag --app_name tags
     ```
 
 
