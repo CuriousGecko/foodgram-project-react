@@ -120,6 +120,8 @@ Pass: verystr000ngpass!
 }
 ```
 
+Вся документация по API доступна по адресу api/docs/redoc.html
+
 
 ### Технология
 
