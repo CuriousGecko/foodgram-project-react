@@ -7,9 +7,6 @@ User = get_user_model()
 
 
 class RecipeFilter(filters.FilterSet):
-    author = filters.ModelChoiceFilter(
-        queryset=User.objects.all(),
-    )
     tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
     )
@@ -45,6 +42,8 @@ class RecipeFilter(filters.FilterSet):
         return queryset
 
 
+# Если убрать фильтерсет (реализовать через filterset_fields),
+# то как прикрутить 'startswith'. В документации не смог найти.
 class IngredientFilter(filters.FilterSet):
     name = filters.CharFilter(
         lookup_expr='startswith',
@@ -55,9 +54,3 @@ class IngredientFilter(filters.FilterSet):
         fields = (
             'name',
         )
-    # Но такой вариант интереснее.
-    # def filter_name(self, queryset, name, value):
-    #     return queryset.filter(
-    #         Q(name__startswith=value.lower())
-    #         | Q(name__startswith=value.upper())
-    #     )

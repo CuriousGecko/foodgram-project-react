@@ -1,75 +1,15 @@
 from django.db import transaction
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
-from rest_framework.fields import IntegerField
-from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredients,
-                            ShoppingCart, Tag)
-from users.serializers import (CustomUserSerializer,
-                               RecipeShortVersionSerializer)
-
-
-class IngredientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ingredient
-        fields = (
-            'id',
-            'name',
-            'measurement_unit',
-        )
-        read_only_fields = (
-            'id',
-            'name',
-            'measurement_unit',
-        )
-
-
-class TagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = (
-            'id',
-            'name',
-            'color',
-            'slug',
-        )
-        read_only_fields = (
-            'id',
-            'name',
-            'color',
-            'slug',
-        )
-
-
-class RecipeIngredientsSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(
-        source='ingredient.id',
-    )
-    name = serializers.ReadOnlyField(
-        source='ingredient.name',
-    )
-    measurement_unit = serializers.ReadOnlyField(
-        source='ingredient.measurement_unit',
-    )
-
-    class Meta:
-        model = RecipeIngredients
-        fields = (
-            'id',
-            'name',
-            'measurement_unit',
-            'amount',
-        )
-        validators = (
-            UniqueTogetherValidator(
-                queryset=RecipeIngredients.objects.all(),
-                fields=(
-                    'ingredient',
-                    'recipe',
-                )
-            ),
-        )
+from favorite.models import Favorite
+from ingredients.api.serializers import (IngredientCreateSerializer,
+                                         RecipeIngredientsSerializer)
+from ingredients.models import Ingredient
+from recipes.models import Recipe, RecipeIngredients
+from shoppingcart.models import ShoppingCart
+from tags.api.serializers import TagSerializer
+from users.api.serializers import CustomUserSerializer
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -120,19 +60,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         ).exists()
 
 
-class IngredientCreateSerializer(serializers.ModelSerializer):
-    id = IntegerField(
-        write_only=True,
-    )
-
-    class Meta:
-        model = RecipeIngredients
-        fields = (
-            'id',
-            'amount',
-        )
-
-
 class RecipeSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(
         read_only=True,
@@ -165,10 +92,11 @@ class RecipeSerializer(serializers.ModelSerializer):
             )
         ingredients_list = []
         for element in ingredients:
-            ingredient = Ingredient.objects.filter(
-                id=element.get('id'),
-            ).first()
-            if not ingredient:
+            try:
+                ingredient = Ingredient.objects.get(
+                    id=element.get('id'),
+                )
+            except Ingredient.DoesNotExist:
                 raise serializers.ValidationError(
                     'Нельзя добавить в рецепт отсутствующий в БД ингредиент.'
                 )
@@ -178,7 +106,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 )
             if int(element.get('amount')) <= 0:
                 raise serializers.ValidationError(
-                    'Не указано количество ингредиента.'
+                    'Количество ингредиента должно быть больше нуля.'
                 )
             ingredients_list.append(ingredient)
         return ingredients
@@ -263,46 +191,3 @@ class RecipeSerializer(serializers.ModelSerializer):
             instance,
             context={'request': request},
         ).data
-
-
-class FavoriteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Favorite
-        fields = (
-            'user',
-            'recipe',
-        )
-
-    def validate(self, data):
-        if Favorite.objects.filter(
-            user=data.get('user'),
-            recipe=data.get('recipe'),
-        ).exists():
-            raise serializers.ValidationError(
-                'Рецепт уже в избранном.'
-            )
-        return data
-
-    def to_representation(self, instance):
-        return RecipeShortVersionSerializer(
-            instance.recipe,
-        ).data
-
-
-class ShoppingCartSerializer(FavoriteSerializer):
-    class Meta:
-        model = ShoppingCart
-        fields = (
-            'user',
-            'recipe',
-        )
-
-    def validate(self, data):
-        if ShoppingCart.objects.filter(
-                user=data.get('user'),
-                recipe=data.get('recipe'),
-        ).exists():
-            raise serializers.ValidationError(
-                'Рецепт уже в списке покупок.'
-            )
-        return data

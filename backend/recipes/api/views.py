@@ -1,41 +1,23 @@
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
-from api.filters import IngredientFilter, RecipeFilter
-from api.pagination import CustomPagination
-from api.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
-from api.serializers import (FavoriteSerializer, IngredientSerializer,
-                             RecipeReadSerializer, RecipeSerializer,
-                             ShoppingCartSerializer, TagSerializer)
+from favorite.api.serializers import FavoriteSerializer
+from favorite.models import Favorite
+from foodgram_backend.api.filters import RecipeFilter
+from foodgram_backend.api.pagination import CustomPagination
+from foodgram_backend.api.permissions import (IsAdminOrReadOnly,
+                                              IsOwnerOrReadOnly)
 from foodgram_backend.constants import DOWNLOAD_FILENAME
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredients,
-                            ShoppingCart, Tag)
-
-
-class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """Обрабатывает запросы, связанные с тегами."""
-
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
-    permission_classes = (AllowAny,)
-    pagination_class = None
-
-
-class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    """Обрабатывает запросы, связанные с ингредиентами."""
-
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
-    permission_classes = (AllowAny,)
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = IngredientFilter
-    pagination_class = None
+from recipes.api.serializers import RecipeReadSerializer, RecipeSerializer
+from recipes.models import Recipe, RecipeIngredients
+from shoppingcart.api.serializers import ShoppingCartSerializer
+from shoppingcart.models import ShoppingCart
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -50,6 +32,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return RecipeReadSerializer
+        elif self.action == 'favorite':
+            return FavoriteSerializer
+        elif self.action == 'shopping_cart':
+            return ShoppingCartSerializer
         return RecipeSerializer
 
     def perform_create(self, serializer):
@@ -61,7 +47,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=True,
     )
     def favorite(self, request, pk):
-        return self.add_obj(request, pk, FavoriteSerializer)
+        return self.add_obj(request, pk)
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
@@ -73,13 +59,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=True,
     )
     def shopping_cart(self, request, pk):
-        return self.add_obj(request, pk, ShoppingCartSerializer)
+        return self.add_obj(request, pk)
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
         return self.delete_obj(request, pk, ShoppingCart)
 
-    def add_obj(self, request, pk, serializer):
+    def add_obj(self, request, pk):
+        serializer = self.get_serializer_class()
         serializer = serializer(
             data={
                 'user': self.request.user.id,
@@ -138,6 +125,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(
             amount=Sum('amount'),
         )
+        return self.shopping_list_create(ingredients)
+
+    def shopping_list_create(self, ingredients):
         shopping_list = [
             f'{index + 1}. {ingredient["ingredient__name"]} '
             f'- {ingredient["amount"]} '

@@ -32,8 +32,11 @@ INSTALLED_APPS = [
     'django_filters',
 
     'users.apps.UsersConfig',
-    'api.apps.ApiConfig',
+    'ingredients.apps.IngredientsConfig',
+    'favorite.apps.FavoriteConfig',
     'recipes.apps.RecipesConfig',
+    'tags.apps.TagsConfig',
+    'shoppingcart.apps.ShoppingcartConfig',
 ]
 
 MIDDLEWARE = [
@@ -125,7 +128,7 @@ REST_FRAMEWORK = {
     ],
 
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 3,
+    'PAGE_SIZE': 6,
 
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -139,9 +142,9 @@ DJOSER = {
     'HIDE_USERS': False,
 
     'SERIALIZERS': {
-        'user_create': 'users.serializers.CustomUserCreateSerializer',
-        'user': 'users.serializers.CustomUserSerializer',
-        'current_user': 'users.serializers.CustomUserSerializer',
+        'user_create': 'users.api.serializers.CustomUserCreateSerializer',
+        'user': 'users.api.serializers.CustomUserSerializer',
+        'current_user': 'users.api.serializers.CustomUserSerializer',
     },
 
     'PERMISSIONS': {

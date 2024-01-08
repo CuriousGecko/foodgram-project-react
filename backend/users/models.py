@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from foodgram_backend.constants import (MAX_LENGHT_EMAIL, MAX_LENGHT_LAST_NAME,
@@ -37,8 +38,11 @@ class CustomUser(AbstractUser):
         verbose_name_plural = 'Пользователи'
         ordering = ('username',)
 
-    def __str__(self):
-        return self.username
+    def clean(self):
+        if self.username.lower() == 'me':
+            raise ValidationError(
+                'Имя пользователя не может быть "me".'
+            )
 
 
 class Subscription(models.Model):
@@ -67,5 +71,11 @@ class Subscription(models.Model):
             )
         ]
 
+    def clean(self):
+        if self.user == self.author:
+            raise ValidationError(
+                'Нельзя создать подписку на самого себя.'
+            )
+
     def __str__(self):
-        return f'{self.user} подписан на {self.author}'
+        return f'{self.user} подписан на {self.author}.'

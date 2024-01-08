@@ -6,10 +6,10 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.pagination import CustomPagination
+from foodgram_backend.api.pagination import CustomPagination
 from users.models import Subscription
-from users.serializers import (SubscriptionCreateSerializer,
-                               SubscriptionListSerializer)
+from users.api.serializers import (SubscriptionCreateSerializer,
+                                   SubscriptionListSerializer)
 
 User = get_user_model()
 
@@ -24,34 +24,30 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,),
         detail=True,
     )
-    def subscribe(self, request, **kwargs):
+    def subscribe(self, request, id):
         user = request.user
         author = get_object_or_404(
             User,
-            id=self.kwargs.get('id'),
+            id=id,
         )
         serializer = SubscriptionCreateSerializer(
-            author,
             data={'user': user.id, 'author': author.id},
-            context={'request': request},
+            context={'request': request, 'author': author},
         )
         serializer.is_valid(
             raise_exception=True,
         )
-        Subscription.objects.create(
-            user=user,
-            author=author,
-        )
+        serializer.save()
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED,
         )
 
     @subscribe.mapping.delete
-    def delete_subscription(self, request, **kwargs):
+    def delete_subscription(self, request, id):
         author = get_object_or_404(
             User,
-            id=self.kwargs.get('id'),
+            id=id,
         )
         subscription = Subscription.objects.filter(
             user=request.user,
@@ -84,6 +80,8 @@ class CustomUserViewSet(UserViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
+    # По умолчанию он набор методов может. В ТЗ лишь GET.
+    # Так-то вроде не критично, но будут светиться ненужные методы в доступных.
     @action(
         methods=('get',),
         permission_classes=(IsAuthenticated,),

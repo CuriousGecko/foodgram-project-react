@@ -8,6 +8,6 @@ urlpatterns = [
     ),
     path(
         'api/',
-        include('api.urls'),
+        include('foodgram_backend.api.urls'),
     ),
 ]

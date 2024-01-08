@@ -2,7 +2,6 @@ import json
 
 from django.apps import apps
 from django.core.management.base import BaseCommand
-from django.db import IntegrityError
 
 
 class Command(BaseCommand):
@@ -32,18 +31,10 @@ class Command(BaseCommand):
                 options['app_name'],
                 options['model_name'],
             )
-        added = int()
-        fails = int()
-        for element in elements:
-            try:
-                model.objects.create(
-                    **element,
-                )
-                added += 1
-            except IntegrityError:
-                fails += 1
-        print(
-            f'Операция завершена.\n'
-            f'Добавлено элементов: {added}\n'
-            f'Пропущено элементов: {fails}'
+        elements = [
+            model(**element) for element in elements
+        ]
+        model.objects.bulk_create(elements)
+        self.stdout.write(
+            self.style.SUCCESS('Загрузка данных успешно завершена.')
         )

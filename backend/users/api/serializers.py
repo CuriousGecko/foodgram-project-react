@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer
-from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -31,13 +30,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if not request.user.is_authenticated:
-            return False
-        return Subscription.objects.filter(
-            user=request.user,
-            author=obj,
-        ).exists()
+        return (
+            self.context.get('request').user.is_authenticated
+            and Subscription.objects.filter(
+                user=self.context.get('request').user,
+                author=obj,
+            ).exists()
+        )
 
 
 class SubscriptionListSerializer(CustomUserSerializer):
@@ -63,10 +62,9 @@ class SubscriptionListSerializer(CustomUserSerializer):
         recipes = author.recipes.all()
         if limit:
             recipes = recipes[:int(limit)]
-        serializer = RecipeShortVersionSerializer(
+        serializer = RecipeShortSerializer(
             recipes,
             many=True,
-            read_only=True,
         )
         return serializer.data
 
@@ -96,16 +94,13 @@ class SubscriptionCreateSerializer(serializers.ModelSerializer):
         return data
 
     def to_representation(self, instance):
-        request = self.context.get('request')
         return SubscriptionListSerializer(
-            instance,
-            context={'request': request},
+            instance=self.context.get('author'),
+            context={'request': self.context.get('request')},
         ).data
 
 
-class RecipeShortVersionSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
-
+class RecipeShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (

@@ -10,7 +10,7 @@ Pass: verystr000ngpass!
 - Добавление рецептов в избранное.
 - Формирование списка покупок.
 
-#### Развертывание проекта локально:
+#### Развертывание проекта локально (для разработки):
 
 1. Установите Docker и Docker-compose. Запустите сервис Docker.
 
@@ -32,46 +32,42 @@ Pass: verystr000ngpass!
     cd ../infra/
     ```
 
-5. Измените server_name в файле nginx.conf на ваш домен.
-
-6. Запустите проект:
+5. Запустите проект:
 
     ```bash
     sudo docker compose -f docker-compose.yml up
     ```
 
-7. Выполните миграции:
+6. Выполните миграции:
 
     ```bash
-    sudo docker compose -f docker-compose.yml exec backend python manage.py migrate
+    sudo docker exec foodgram-back python manage.py migrate
     ```
 
-8. Соберите статические файлы бэкенда:
+7. Соберите статические файлы бэкенда:
 
     ```bash
-    sudo docker compose -f docker-compose.yml exec backend python manage.py collectstatic
+    sudo docker exec foodgram-back python manage.py collectstatic
     ```
 
-9. Создайте суперпользователя:
+8. Создайте суперпользователя:
 
     ```bash
     sudo docker exec -it foodgram-back python manage.py createsuperuser
     ```
 
-10. Загрузите данные в базу (опционально):
+9. Загрузите данные в базу (опционально):
 
     ```bash
-    sudo docker exec -it foodgram-back python manage.py load_elements_from_json --file_path ./data_for_load/ingredients.json --model_name Ingredient --app_name recipes
+    sudo docker exec foodgram-back python manage.py load_elements_from_json --file_path ./data_for_load/ingredients.json --model_name Ingredient --app_name recipes
     ```
 
     ```bash
-    sudo docker exec -it foodgram-back python manage.py load_elements_from_json --file_path ./data_for_load/tags.json --model_name Tag --app_name recipes
+    sudo docker exec foodgram-back python manage.py load_elements_from_json --file_path ./data_for_load/tags.json --model_name Tag --app_name recipes
     ```
 
-11. Можно приступать к наполнению сайта рецептами!
 
-
-#### Деплой проекта на удаленном сервере:
+#### Автоматический деплой проекта на удаленном сервере:
 
 1. Файл workflow уже написан. Рекомендуется внимательно изучить содержимое. Файл находится в директории:
 
