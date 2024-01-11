@@ -16,8 +16,8 @@ class SubscriptionListSerializer(UserSerializer):
     class Meta:
         model = User
         fields = (
-                UserSerializer.Meta.fields
-                + ('recipes', 'recipes_count',)
+            UserSerializer.Meta.fields
+            + ('recipes', 'recipes_count',)
         )
         read_only_fields = (
             tuple(User.REQUIRED_FIELDS)
