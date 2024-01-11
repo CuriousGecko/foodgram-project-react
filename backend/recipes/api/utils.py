@@ -16,7 +16,7 @@ def download_pdf(shopping_list):
     pdfmetrics.registerFont(
         ttfonts.TTFont(
             'Ubuntu-Bold',
-            'fonts/Ubuntu-Bold.ttf',
+            'pdf/fonts/Ubuntu-Bold.ttf',
         )
     )
     pdfmetrics.registerFont(
