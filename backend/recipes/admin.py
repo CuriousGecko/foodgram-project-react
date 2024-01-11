@@ -1,17 +1,15 @@
 from django.contrib import admin
 from django.contrib.admin import display
 
-from ingredients.admin import IngredientInline
+from recipes.forms import RecipeIngredientsInlineFormSet
 from recipes.models import Recipe, RecipeIngredients
 
 
-@admin.register(RecipeIngredients)
-class RecipeIngredientsAdmin(admin.ModelAdmin):
-    list_display = (
-        'recipe',
-        'ingredient',
-        'amount',
-    )
+class RecipeIngredientsInline(admin.TabularInline):
+    model = RecipeIngredients
+    formset = RecipeIngredientsInlineFormSet
+    extra = 1
+    autocomplete_fields = ('ingredient',)
 
 
 @admin.register(Recipe)
@@ -30,7 +28,8 @@ class RecipeAdmin(admin.ModelAdmin):
         'name',
         'tags',
     )
-    inlines = (IngredientInline,)
+    inlines = (RecipeIngredientsInline,)
+    filter_horizontal = ('tags',)
 
     @display(description='Количество в избранных')
     def added_in_favorites(self, obj):

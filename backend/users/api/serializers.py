@@ -1,13 +1,14 @@
 from django.contrib.auth import get_user_model
-from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserCreateSerializer as DjoUserCreateSerializer
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from subscriptions.models import Subscription
 
 User = get_user_model()
 
 
-class CustomUserCreateSerializer(UserCreateSerializer):
+class UserCreateSerializer(DjoUserCreateSerializer):
     class Meta:
         model = User
         fields = (
@@ -15,8 +16,15 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             + tuple(User.REQUIRED_FIELDS)
         )
 
+    def validate_username(self, username):
+        if username.lower() == 'me':
+            raise ValidationError(
+                "Имя пользователя не может быть 'me'."
+            )
+        return username
 
-class CustomUserSerializer(serializers.ModelSerializer):
+
+class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:

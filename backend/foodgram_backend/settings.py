@@ -103,7 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
 
@@ -143,9 +143,9 @@ DJOSER = {
     'HIDE_USERS': False,
 
     'SERIALIZERS': {
-        'user_create': 'users.api.serializers.CustomUserCreateSerializer',
-        'user': 'users.api.serializers.CustomUserSerializer',
-        'current_user': 'users.api.serializers.CustomUserSerializer',
+        'user_create': 'users.api.serializers.UserCreateSerializer',
+        'user': 'users.api.serializers.UserSerializer',
+        'current_user': 'users.api.serializers.UserSerializer',
     },
 
     'PERMISSIONS': {

@@ -35,7 +35,7 @@ Pass: verystr000ngpass!
 5. Запустите проект:
 
     ```bash
-    sudo docker compose -f docker-compose.yml up
+    sudo docker compose -f docker-compose-local.yml up
     ```
 
 6. Выполните миграции:

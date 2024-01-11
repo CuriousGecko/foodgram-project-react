@@ -4,20 +4,20 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.api.serializers import RecipeShortSerializer
 from subscriptions.models import Subscription
-from users.api.serializers import CustomUserSerializer
+from users.api.serializers import UserSerializer
 
 User = get_user_model()
 
 
-class SubscriptionListSerializer(CustomUserSerializer):
+class SubscriptionListSerializer(UserSerializer):
     recipes_count = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
-            CustomUserSerializer.Meta.fields
-            + ('recipes', 'recipes_count',)
+                UserSerializer.Meta.fields
+                + ('recipes', 'recipes_count',)
         )
         read_only_fields = (
             tuple(User.REQUIRED_FIELDS)
@@ -54,14 +54,12 @@ class SubscriptionCreateSerializer(serializers.ModelSerializer):
             )
         ]
 
-    def validate(self, data):
-        user = data.get('user')
-        author = data.get('author')
-        if user == author:
+    def validate_author(self, author):
+        if self.context.get('request').user == author:
             raise serializers.ValidationError(
                 'Подписаться на самого себя нельзя.'
             )
-        return data
+        return author
 
     def to_representation(self, instance):
         return SubscriptionListSerializer(

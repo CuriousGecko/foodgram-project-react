@@ -1,20 +1,19 @@
 from django.db.models import Sum
-from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from favorite.api.serializers import FavoriteSerializer
 from favorite.models import Favorite
 from foodgram_backend.api.filters import RecipeFilter
-from foodgram_backend.api.pagination import CustomPagination
+from foodgram_backend.api.pagination import Pagination
 from foodgram_backend.api.permissions import (IsAdminOrReadOnly,
                                               IsOwnerOrReadOnly)
-from foodgram_backend.constants import DOWNLOAD_FILENAME
-from recipes.api.serializers import RecipeReadSerializer, RecipeSerializer
+from recipes.api.serializers import RecipeWriteSerializer
+from recipes.api.utils import download_pdf
 from recipes.models import Recipe, RecipeIngredients
 from shoppingcart.api.serializers import ShoppingCartSerializer
 from shoppingcart.models import ShoppingCart
@@ -27,16 +26,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsOwnerOrReadOnly | IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    pagination_class = CustomPagination
-
-    def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
-            return RecipeReadSerializer
-        elif self.action == 'favorite':
-            return FavoriteSerializer
-        elif self.action == 'shopping_cart':
-            return ShoppingCartSerializer
-        return RecipeSerializer
+    pagination_class = Pagination
+    serializer_class = RecipeWriteSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -44,6 +35,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         methods=('post',),
         permission_classes=(IsAuthenticated,),
+        serializer_class=FavoriteSerializer,
         detail=True,
     )
     def favorite(self, request, pk):
@@ -56,6 +48,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         methods=('post',),
         permission_classes=(IsAuthenticated,),
+        serializer_class=ShoppingCartSerializer,
         detail=True,
     )
     def shopping_cart(self, request, pk):
@@ -125,7 +118,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(
             amount=Sum('amount'),
         )
-        return self.shopping_list_create(ingredients)
+        shopping_list = self.shopping_list_create(ingredients)
+        return download_pdf(shopping_list)
 
     def shopping_list_create(self, ingredients):
         shopping_list = [
@@ -134,12 +128,4 @@ class RecipeViewSet(viewsets.ModelViewSet):
             f'{ingredient["ingredient__measurement_unit"]}'
             for index, ingredient in enumerate(ingredients)
         ]
-        shopping_list_text = 'Нужно купить:\n', '\n'.join(shopping_list)
-        response = HttpResponse(
-            shopping_list_text,
-            content_type='text/plain',
-        )
-        response['Content-Disposition'] = (
-            f'attachment; filename={DOWNLOAD_FILENAME}'
-        )
-        return response
+        return shopping_list

@@ -31,11 +31,11 @@ class Subscription(models.Model):
             )
         ]
 
+    def __str__(self):
+        return f'{self.user} подписан на {self.author}.'
+
     def clean(self):
         if self.user == self.author:
             raise ValidationError(
                 'Нельзя создать подписку на самого себя.'
             )
-
-    def __str__(self):
-        return f'{self.user} подписан на {self.author}.'

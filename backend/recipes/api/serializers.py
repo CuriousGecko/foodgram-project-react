@@ -10,11 +10,11 @@ from ingredients.models import Ingredient
 from recipes.models import Recipe, RecipeIngredients
 from shoppingcart.models import ShoppingCart
 from tags.api.serializers import TagSerializer
-from users.api.serializers import CustomUserSerializer
+from users.api.serializers import UserSerializer
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
-    author = CustomUserSerializer(
+    author = UserSerializer(
         read_only=True,
     )
     ingredients = serializers.SerializerMethodField()
@@ -53,16 +53,14 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def check_is(self, recipe, model):
         user = self.context.get('request').user
-        if not user.is_authenticated:
-            return False
-        return model.objects.filter(
+        return user.is_authenticated and model.objects.filter(
             user=user.id,
             recipe=recipe.id,
         ).exists()
 
 
-class RecipeSerializer(serializers.ModelSerializer):
-    author = CustomUserSerializer(
+class RecipeWriteSerializer(serializers.ModelSerializer):
+    author = UserSerializer(
         read_only=True,
     )
     ingredients = IngredientCreateSerializer(
@@ -87,6 +85,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def validate_ingredients(self, ingredients):
+        # "Пустота поля будет проверена самим полем" - если убрать, то он без
+        # проблем создаст рецепт без ингредиентов.
         if not ingredients:
             raise serializers.ValidationError(
                 'Нужно добавить в рецепт хотя бы один ингредиент.'
@@ -133,6 +133,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             )
         return name
 
+# Увы, сам ДРФ не выдает такого ответа. Вероятно из-за m2m связи.
     def validate(self, data):
         if 'tags' not in data:
             raise serializers.ValidationError(
@@ -147,13 +148,11 @@ class RecipeSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create_ingredients_amounts(self, ingredients, recipe):
         RecipeIngredients.objects.bulk_create(
-            [
-                RecipeIngredients(
-                    ingredient=Ingredient.objects.get(id=ingredient.get('id')),
-                    recipe=recipe,
-                    amount=ingredient.get('amount'),
-                ) for ingredient in ingredients
-            ]
+            RecipeIngredients(
+                ingredient=Ingredient.objects.get(id=ingredient.get('id')),
+                recipe=recipe,
+                amount=ingredient.get('amount'),
+            ) for ingredient in ingredients
         )
 
     @transaction.atomic
