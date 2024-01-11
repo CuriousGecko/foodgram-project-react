@@ -22,7 +22,7 @@ def download_pdf(shopping_list):
     pdfmetrics.registerFont(
         ttfonts.TTFont(
             'Ubuntu-Regular',
-            'fonts/Ubuntu-Regular.ttf',
+            'pdf/fonts/Ubuntu-Regular.ttf',
         )
     )
     page = canvas.Canvas(
@@ -30,7 +30,7 @@ def download_pdf(shopping_list):
         pagesize=A4,
     )
     page.drawImage(
-        'media/image_for_pdf.jpg',
+        'pdf/images/image_for_pdf.jpg',
         x=0,
         y=550,
         width=600,
