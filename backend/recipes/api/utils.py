@@ -88,38 +88,47 @@ class PDFGenerator:
             data,
             items_per_page_first,
             items_per_page_others,
-            first_page_y,
-            other_pages_y,
-            x,
+            first_page_y, other_pages_y,
+            x
     ):
-        self.set_font(
-            font=self.fonts['text'],
-        )
-        y = first_page_y
-        items_per_page = items_per_page_first
-        for index, item in enumerate(data):
-            try:
-                if index > 0 and index % items_per_page == 0:
-                    page_number = int(index / items_per_page) + 1
-                    if page_number >= 2:
-                        items_per_page = items_per_page_others
-                        self.pdf.showPage()
-                        self.set_font(
-                            font=self.fonts['text'],
-                        )
-                        y = other_pages_y - (
-                            index % items_per_page_others * 20
-                        )
+        try:
+            self.set_font(
+                font=self.fonts['text'],
+            )
+
+            y = first_page_y
+            items_per_page = items_per_page_first
+            current_page_items = 0
+
+            for index, item in enumerate(data):
+                if current_page_items >= items_per_page:
+                    self.pdf.showPage()
+                    self.set_font(
+                        font=self.fonts['text'],
+                    )
+                    y = (
+                        first_page_y if index < items_per_page_first
+                        else other_pages_y
+                    )
+                    items_per_page = items_per_page_others
+                    current_page_items = 0
+
                 self.pdf.drawString(
-                    x,
-                    y - (index % items_per_page * 20),
-                    item,
+                    x=x,
+                    y=y,
+                    text=item,
                 )
-            except Exception as e:
-                traceback.print_exc()
-                print(
-                    f'Ошибка при отрисовке элемента списка {item}: {e}'
-                )
+                y -= 20
+                current_page_items += 1
+
+            if current_page_items > 0:
+                self.pdf.showPage()
+
+        except Exception as e:
+            traceback.print_exc()
+            print(
+                f'Ошибка при отрисовке элемента списка {item}: {e}'
+            )
 
     def generate_pdf(self, list_data=None):
         for data_key, data_value in self.data.items():
