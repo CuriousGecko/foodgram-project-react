@@ -85,8 +85,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
 
     def validate_ingredients(self, ingredients):
-        # "Пустота поля будет проверена самим полем" - если убрать, то он без
-        # проблем создаст рецепт без ингредиентов.
         if not ingredients:
             raise serializers.ValidationError(
                 'Нужно добавить в рецепт хотя бы один ингредиент.'
@@ -133,7 +131,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             )
         return name
 
-# Увы, сам ДРФ не выдает такого ответа. Вероятно из-за m2m связи.
     def validate(self, data):
         if 'tags' not in data:
             raise serializers.ValidationError(

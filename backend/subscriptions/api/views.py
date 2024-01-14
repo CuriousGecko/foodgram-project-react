@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 
 from foodgram_backend.api.pagination import Pagination
 from subscriptions.api.serializers import (SubscriptionCreateSerializer,
@@ -13,11 +15,7 @@ from subscriptions.models import Subscription
 User = get_user_model()
 
 
-# Это конечно не столь элегантно, но почему бы и да.
-# По мне разумный компромисс для идеи разделения приложений\вьюх.
-# Да и будет хоть пример с APIView для разнообразия.
-# А экшоны и в других местах есть.
-class APISubscribe(APIView):
+class SubscribeAPI(APIView):
     """Создаст или удалит подписку на пользователя."""
 
     permission_classes = (IsAuthenticated,)
@@ -61,21 +59,14 @@ class APISubscribe(APIView):
         )
 
 
-class APISubscriptions(APIView):
+class SubscriptionListViewSet(ListModelMixin, GenericViewSet):
     """Вернет список подписок пользователя."""
 
-    pagination_class = Pagination
+    serializer_class = SubscriptionListSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = Pagination
 
-    def get(self, request):
-        subscriptions = User.objects.filter(
-            following__user=request.user,
+    def get_queryset(self):
+        return User.objects.filter(
+            following__user=self.request.user,
         )
-        paginator = self.pagination_class()
-        subscriptions = paginator.paginate_queryset(subscriptions, request)
-        serializer = SubscriptionListSerializer(
-            subscriptions,
-            many=True,
-            context={'request': request},
-        )
-        return paginator.get_paginated_response(serializer.data)

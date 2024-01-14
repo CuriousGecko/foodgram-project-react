@@ -1,4 +1,5 @@
 from django.db.models import Sum
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -12,8 +13,9 @@ from foodgram_backend.api.filters import RecipeFilter
 from foodgram_backend.api.pagination import Pagination
 from foodgram_backend.api.permissions import (IsAdminOrReadOnly,
                                               IsOwnerOrReadOnly)
+from foodgram_backend.constants import DOWNLOAD_FILENAME
 from recipes.api.serializers import RecipeWriteSerializer
-from recipes.api.utils import download_pdf
+from recipes.api.utils import PDFGenerator
 from recipes.models import Recipe, RecipeIngredients
 from shoppingcart.api.serializers import ShoppingCartSerializer
 from shoppingcart.models import ShoppingCart
@@ -118,8 +120,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(
             amount=Sum('amount'),
         )
-        shopping_list = self.shopping_list_create(ingredients)
-        return download_pdf(shopping_list)
+        response = HttpResponse(
+            content_type='application/pdf',
+        )
+        response['Content-Disposition'] = (
+            f'attachment; filename={DOWNLOAD_FILENAME}',
+        )
+        pdf_generator = PDFGenerator(
+            filename=response,
+            fonts_path='pdf/fonts.json',
+            data_path='pdf/data.json',
+        )
+        pdf = pdf_generator.generate_pdf(
+            list_data=self.shopping_list_create(ingredients),
+        )
+        response.write(pdf)
+        return response
 
     def shopping_list_create(self, ingredients):
         shopping_list = [

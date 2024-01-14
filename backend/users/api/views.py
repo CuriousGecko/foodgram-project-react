@@ -1,5 +1,4 @@
 from djoser.views import UserViewSet as DjoserUserViewSet
-from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from foodgram_backend.api.pagination import Pagination
@@ -10,10 +9,7 @@ class UserViewSet(DjoserUserViewSet):
 
     pagination_class = Pagination
 
-    @action(
-        methods=('get',),
-        permission_classes=(IsAuthenticated,),
-        detail=False,
-    )
-    def me(self, request):
-        return super().me(request)
+    def get_permissions(self):
+        if self.action == 'me':
+            return (IsAuthenticated(),)
+        return super().get_permissions()

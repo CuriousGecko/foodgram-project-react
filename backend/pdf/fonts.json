@@ -1,0 +1,12 @@
+{
+  "title": {
+    "font_name": "Ubuntu-Bold",
+    "font_path": "pdf/fonts/Ubuntu-Bold.ttf",
+    "font_size": 18
+  },
+  "text": {
+    "font_name": "Ubuntu-Regular",
+    "font_path": "pdf/fonts/Ubuntu-Regular.ttf",
+    "font_size": 14
+  }
+}

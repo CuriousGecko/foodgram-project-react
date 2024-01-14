@@ -1,0 +1,22 @@
+{
+  "image": {
+    "image": "pdf/images/image_for_pdf.jpg",
+    "x": 0,
+    "y": 550,
+    "width": 600,
+    "height": 297
+  },
+  "title": {
+    "x": 40,
+    "y": 510,
+    "text": "Нужно купить:"
+  },
+  "list": {
+    "objects": [],
+    "items_per_page_first": 23,
+    "items_per_page_others": 30,
+    "x": 100,
+    "first_page_y": 470,
+    "other_pages_y": 1260
+  }
+}

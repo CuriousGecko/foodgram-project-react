@@ -39,8 +39,6 @@ class RecipeFilter(filters.FilterSet):
         return queryset
 
 
-# Если убрать фильтерсет (реализовать через filterset_fields),
-# то как прикрутить 'startswith'. В документации не смог найти.
 class IngredientFilter(filters.FilterSet):
     name = filters.CharFilter(
         lookup_expr='startswith',
