@@ -107,7 +107,9 @@ class PDFGenerator:
                         self.set_font(
                             font=self.fonts['text'],
                         )
-                        y = other_pages_y
+                        y = other_pages_y - (
+                            index % items_per_page_others * 20
+                        )
                 self.pdf.drawString(
                     x,
                     y - (index % items_per_page * 20),
