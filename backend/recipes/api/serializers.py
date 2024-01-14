@@ -3,7 +3,6 @@ from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
 from favorite.models import Favorite
-from foodgram_backend.constants import MIN_AMOUNT
 from ingredients.api.serializers import (IngredientCreateSerializer,
                                          RecipeIngredientsSerializer)
 from ingredients.models import Ingredient
