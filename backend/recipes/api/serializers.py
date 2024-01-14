@@ -103,10 +103,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Обнаружены дубликаты ингредиентов.'
                 )
-            if int(element.get('amount')) <= 0:
-                raise serializers.ValidationError(
-                    f'Количество ингредиента должно быть >= {MIN_AMOUNT}.'
-                )
             ingredients_list.append(ingredient)
         return ingredients
 
