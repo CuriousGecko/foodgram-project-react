@@ -3,8 +3,6 @@ from djoser.serializers import UserCreateSerializer as DjoUserCreateSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from subscriptions.models import Subscription
-
 User = get_user_model()
 
 
