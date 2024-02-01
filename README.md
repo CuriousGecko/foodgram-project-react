@@ -1,9 +1,5 @@
 ## Foodgram - отличный сервис для любителей покушать.
 
-URL: http://geckoyaproject.ddns.net
-Login: admin@support.com
-Pass: verystr000ngpass!
-
 ##### Возможности сервиса:
 
 - Создание, просмотр, редактирование и удаление рецептов.
